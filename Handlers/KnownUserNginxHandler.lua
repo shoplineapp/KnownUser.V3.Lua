@@ -10,7 +10,6 @@ aHandler.handle = function(customerId, secretKey, integrationConfigJson, request
   assert(secretKey ~= nil, "secretKey invalid")
   assert(integrationConfigJson ~= nil, "integrationConfigJson invalid")
   assert(request_rec ~= nil, "request_rec invalid")
-  
   -- Implement required helpers
   -- ********************************************************************************   
   iHelpers.request.getHeader = function(name)
@@ -26,7 +25,7 @@ aHandler.handle = function(customerId, secretKey, integrationConfigJson, request
     return cookieValue
   end
   iHelpers.request.getAbsoluteUri = function()
-    return "http://" .. request_var.hostname .. request_var.uri   
+    return request_var.scheme .. "://" .. request_var.http_host .. request_var.uri   
   end
   iHelpers.request.getUserHostAddress = function()
     return request_rec.useragent_ip
