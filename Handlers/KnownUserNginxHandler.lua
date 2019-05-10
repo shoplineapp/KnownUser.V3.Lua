@@ -1,6 +1,7 @@
 iHelpers = require("KnownUserImplementationHelpers")
 knownUser = require("KnownUser")
 utils = require("Utils")
+ck = require "resty.cookie"
 
 local aHandler = {}
 
@@ -30,12 +31,15 @@ aHandler.handle = function(customerId, secretKey, integrationConfigJson, request
   iHelpers.request.getUserHostAddress = function()
     return request_rec.useragent_ip
   end
+
+
+  local cookie, err = ck:new()
   iHelpers.response.setCookie = function(name, value, expire, domain)
     if (domain == nil) then
       domain = ""
     end
     
-    request_rec:setcookie{
+    cookie:set({
       key = name,
       value = value,
       expires = expire,
@@ -43,7 +47,7 @@ aHandler.handle = function(customerId, secretKey, integrationConfigJson, request
       httponly = false,
       path = "/",
       domain = domain
-    }
+    })
   end
   -- ********************************************************************************
   -- END Implement required helpers
