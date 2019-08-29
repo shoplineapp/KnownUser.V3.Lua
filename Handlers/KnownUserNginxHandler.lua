@@ -1,7 +1,7 @@
-iHelpers = require("KnownUserImplementationHelpers")
-knownUser = require("KnownUser")
-utils = require("Utils")
-ck = require "resty.cookie"
+local iHelpers = require("KnownUserImplementationHelpers")
+local knownUser = require("KnownUser")
+local utils = require("Utils")
+local ck = require "resty.cookie"
 
 local aHandler = {}
 
