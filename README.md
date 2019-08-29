@@ -112,6 +112,64 @@ function handle(request_rec)
     request_rec)
 end
 ```
+
+#### Nginx web server
+Example using KnownUserNginxHandler.lua on Nginx running on Linux.
+
+Prerequirements: 
+- Lua module enabled. 
+- Content of SDK folder, `Handlers/KnownUserNginxHandler.lua` has been copied somewhere and added to lua path in Nginx config. 
+
+In your Nginx configuration server block, create a location directive for resource.lua:
+```
+server {
+  ...
+  location /resource.lua {
+    access_by_lua_block {
+      local cjson = require "cjson"
+      iHelpers.json.parse = function(jsonStr)
+        return cjson.decode(jsonStr)
+      end
+
+      iHelpers.hash.hmac_sha256_encode = function(message, key)
+        local hmac = require "resty.hmac"
+        local hmac_sha256 = hmac:new(key, hmac.ALGOS.SHA256)
+
+        if not hmac_sha256 then
+            error("failed to create the hmac_sha256 object")
+        end
+        ok = hmac_sha256:update(message)
+        if not ok then
+            error("failed to add data")
+        end
+        local hex = hmac_sha256:final()
+        local str = require "resty.string"
+        hash = str.to_hex(hex)
+
+        if (hash == nil or hash == "") then
+        error("hmac_sha256_encode failed: Please verify your implementation code")        
+        end
+        return hash
+      end
+
+      integrationConfigJson = 
+      [[
+        ... INSERT INTEGRATION CONFIG ...
+      ]]
+
+      kuHandler = require("KnownUserNginxHandler")
+      
+      kuHandler.handle(
+        "... INSERT CUSTOMER ID ...", 
+        "... INSERT SECRET KEY ...", 
+        integrationConfigJson, 
+        ngx.req,
+        ngx.var)
+
+    }
+  }
+}
+```
 Note in the above example, you need to fill in your key, sha256 function and provide the integration config json.
 
 Visit `resource.lua` using a browser to see it works.
